@@ -1,0 +1,32 @@
+node:internal/modules/cjs/loader:1459
+  throw err;
+  ^
+
+Error: Cannot find module 'tesseract.js'
+Require stack:
+- D:\next-lane-self-drives\next-lane-self-drives\backend\routes\bookings.js
+- D:\next-lane-self-drives\next-lane-self-drives\backend\server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1456:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1066:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1071:22)
+    at Module._load (node:internal/modules/cjs/loader:1242:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1556:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\next-lane-self-drives\next-lane-self-drives\backend\routes\bookings.js:11:19)
+    at Module._compile (node:internal/modules/cjs/loader:1812:14)
+    at Object..js (node:internal/modules/cjs/loader:1943:10)
+    at Module.load (node:internal/modules/cjs/loader:1533:32)
+    at Module._load (node:internal/modules/cjs/loader:1335:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1556:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\next-lane-self-drives\next-lane-self-drives\backend\server.js:56:26) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'D:\\next-lane-self-drives\\next-lane-self-drives\\backend\\routes\\bookings.js',
+    'D:\\next-lane-self-drives\\next-lane-self-drives\\backend\\server.js'
+  ]
+}
+
+Node.js v24.14.0
