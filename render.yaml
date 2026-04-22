@@ -1,11 +1,14 @@
 services:
-  # Node.js Fullstack Service (Backend + Frontend)
+  # 🚗 Node.js Fullstack Service (Backend + Frontend)
   - type: web
     name: next-lane-fullstack
     env: node
     plan: free
+    region: oregon
     buildCommand: npm run build
     startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: 'on'
     envVars:
       - key: NODE_VERSION
         value: 20
@@ -13,26 +16,34 @@ services:
         fromConfig: true
       - key: JWT_SECRET
         generateValue: true
+      - key: PYTHON_API_URL
+        value: http://next-lane-python:8000
+      - fromGroup: supabase-creds
+    dependsOn:
+      - next-lane-python
+
+  # 🐍 Python API Service (Internal Private Service)
+  - type: pserv
+    name: next-lane-python
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r python-api/requirements.txt
+    startCommand: cd python-api && uvicorn main:app --host 0.0.0.0 --port 8000
+    healthCheckPath: /health
+    envVars:
+      - key: MONGODB_URI
+        fromConfig: true
+      - key: JWT_SECRET
+        sync: false
+      - fromGroup: supabase-creds
+
+envVarGroups:
+  - name: supabase-creds
+    envVars:
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_ANON_KEY
         sync: false
       - key: SUPABASE_DB_URL
-        sync: false
-      - key: PYTHON_API_URL
-        value: http://next-lane-python:8000
-    dependsOn:
-      - next-lane-python
-
-  # Python API Service (Internal Private Service)
-  - type: pserv
-    name: next-lane-python
-    env: python
-    plan: free
-    buildCommand: pip install -r python-api/requirements.txt
-    startCommand: cd python-api && uvicorn main:app --host 0.0.0.0 --port 8000
-    envVars:
-      - key: MONGODB_URI
-        fromConfig: true
-      - key: JWT_SECRET
         sync: false
