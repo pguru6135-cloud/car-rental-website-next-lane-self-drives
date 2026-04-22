@@ -1,7 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import axios from 'axios'
+import { createClient } from '../utils/supabase/client'
 
+const supabase = createClient()
 const API = '/api'
 
 export const useAuthStore = create(
@@ -14,36 +16,54 @@ export const useAuthStore = create(
       login: async (email, password) => {
         set({ isLoading: true })
         try {
-          const { data } = await axios.post(`${API}/auth/login`, { email, password })
-          set({ user: data.user, token: data.token, isLoading: false })
-          axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+          if (error) throw error
+          
+          // After successful Supabase login, fetch MongoDB profile
+          const { data: profile } = await axios.get(`${API}/auth/profile`)
+          set({ user: profile.user, token: data.session.access_token, isLoading: false })
           return { success: true }
         } catch (err) {
           set({ isLoading: false })
-          return { success: false, message: err.response?.data?.message || 'Login failed' }
+          return { success: false, message: err.message || 'Login failed' }
         }
       },
 
       register: async (userData) => {
         set({ isLoading: true })
         try {
-          const { data } = await axios.post(`${API}/auth/register`, userData)
-          set({ user: data.user, token: data.token, isLoading: false })
-          axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+          const { data, error } = await supabase.auth.signUp({
+            email: userData.email,
+            password: userData.password,
+            options: {
+              data: {
+                name: userData.name,
+                phone: userData.phone
+              }
+            }
+          })
+          if (error) throw error
+          
+          // User is signed up in Supabase. Now we need to sync with MongoDB.
+          // The backend protect middleware handles the auto-creation of the MongoDB record
+          // but we trigger a profile fetch to initialize the store.
+          const { data: profile } = await axios.get(`${API}/auth/profile`)
+          set({ user: profile.user, token: data.session?.access_token, isLoading: false })
           return { success: true }
         } catch (err) {
           set({ isLoading: false })
-          return { success: false, message: err.response?.data?.message || 'Registration failed' }
+          return { success: false, message: err.message || 'Registration failed' }
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        await supabase.auth.signOut()
         set({ user: null, token: null })
         delete axios.defaults.headers.common['Authorization']
       },
 
       isAdmin: () => get().user?.role === 'admin',
-      isAuthenticated: () => !!get().token,
+      isAuthenticated: () => !!get().user,
     }),
     {
       name: 'nextlane-auth',

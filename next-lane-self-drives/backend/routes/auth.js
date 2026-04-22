@@ -31,62 +31,15 @@ const validate = (req, res, next) => {
   next()
 }
 
-// POST /api/auth/register
-router.post('/register',
-  [
-    body('name').trim().notEmpty().withMessage('Name is required'),
-    body('email').isEmail().withMessage('Valid email required').normalizeEmail(),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-    body('phone').notEmpty().withMessage('Phone number is required'),
-  ],
-  validate,
-  async (req, res) => {
-    try {
-      const { name, email, password, phone } = req.body
-      const existing = await User.findOne({ email })
-      if (existing) return res.status(400).json({ message: 'Email already registered' })
+// POST /api/auth/register - Redundant, now handled by Supabase Client
+router.post('/register', (req, res) => {
+  res.status(405).json({ message: 'Registration is now handled via Supabase Auth' })
+})
 
-      const user = await User.create({ name, email, password, phone })
-      const token = signToken(user._id)
-
-      res.status(201).json({
-        message: 'Account created successfully',
-        token,
-        user: { _id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role },
-      })
-    } catch (err) {
-      res.status(500).json({ message: err.message })
-    }
-  }
-)
-
-// POST /api/auth/login
-router.post('/login',
-  [
-    body('email').isEmail().withMessage('Valid email required').normalizeEmail(),
-    body('password').notEmpty().withMessage('Password required'),
-  ],
-  validate,
-  async (req, res) => {
-    try {
-      const { email, password } = req.body
-      const user = await User.findOne({ email }).select('+password')
-      if (!user || !(await user.comparePassword(password))) {
-        return res.status(401).json({ message: 'Invalid email or password' })
-      }
-      if (!user.isActive) return res.status(403).json({ message: 'Account is deactivated' })
-
-      const token = signToken(user._id)
-      res.json({
-        message: 'Login successful',
-        token,
-        user: { _id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role },
-      })
-    } catch (err) {
-      res.status(500).json({ message: err.message })
-    }
-  }
-)
+// POST /api/auth/login - Redundant, now handled by Supabase Client
+router.post('/login', (req, res) => {
+  res.status(405).json({ message: 'Login is now handled via Supabase Auth' })
+})
 
 // GET /api/auth/profile
 router.get('/profile', protect, async (req, res) => {
