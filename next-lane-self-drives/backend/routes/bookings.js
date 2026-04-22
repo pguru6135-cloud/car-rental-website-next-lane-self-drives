@@ -193,7 +193,7 @@ router.get('/', protect, adminOnly, async (req, res) => {
     const query = status ? { status } : {}
     const bookings = await Booking.find(query)
       .populate('car', 'name brand type')
-      .populate('user', 'name email phone')
+      .populate('user', 'name email phone avatar aadhaar drivingLicense passportPhoto')
       .sort({ createdAt: -1 })
       .limit(Number(limit))
       .skip((Number(page) - 1) * Number(limit))
@@ -209,7 +209,7 @@ router.get('/:id', protect, async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id)
       .populate('car', 'name brand type image pricePerDay')
-      .populate('user', 'name email phone')
+      .populate('user', 'name email phone avatar aadhaar drivingLicense passportPhoto')
     if (!booking) return res.status(404).json({ message: 'Booking not found' })
 
     // Users can only see their own bookings

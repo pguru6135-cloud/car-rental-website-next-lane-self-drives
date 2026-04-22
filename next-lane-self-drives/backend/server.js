@@ -5,6 +5,9 @@ const helmet = require('helmet')
 const morgan = require('morgan')
 const rateLimit = require('express-rate-limit')
 const path = require('path')
+const cookieParser = require('cookie-parser')
+const { createClient: createSupabaseClient } = require('./utils/supabase/server')
+
 
 const connectDB = require('./config/db')
 
@@ -19,9 +22,21 @@ initializeWhatsApp()
 
 // Security middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
+app.use(cookieParser())
+
+// Supabase Session Middleware
+app.use(async (req, res, next) => {
+  const supabase = createSupabaseClient(req, res)
+  const { data: { user } } = await supabase.auth.getUser()
+  req.supabase = supabase
+  req.user = user
+  next()
+})
+
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5000",
   "https://jazzy-melba-611368.netlify.app",
   process.env.FRONTEND_URL
 ].filter(Boolean)
@@ -59,8 +74,16 @@ app.use('/api/admin', require('./routes/admin'))
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'OK', timestamp: new Date() }))
 
-// 404 handler
-app.use((req, res) => res.status(404).json({ message: 'Route not found' }))
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, 'client/dist')))
+
+// Catch-all route to serve the frontend index.html for non-API routes
+app.get('*', (req, res) => {
+  if (req.url.startsWith('/api')) {
+    return res.status(404).json({ message: 'API route not found' })
+  }
+  res.sendFile(path.join(__dirname, 'client/dist/index.html'))
+})
 
 // Error handler
 app.use((err, req, res, next) => {
