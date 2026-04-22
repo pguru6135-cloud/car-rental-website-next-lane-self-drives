@@ -112,14 +112,12 @@ router.patch('/documents', protect, upload.fields([
 // GET /api/auth/seed (One-time use to create admin on production)
 router.get('/seed', async (req, res) => {
   try {
-    const bcrypt = require('bcryptjs')
-    const hash = await bcrypt.hash('admin123', 10)
     const admin = await User.findOneAndUpdate(
       { email: 'pguru6135@gmail.com' },
-      { name: 'Admin', email: 'pguru6135@gmail.com', password: hash, role: 'admin', phone: '9342179459' },
+      { name: 'Admin', email: 'pguru6135@gmail.com', role: 'admin', phone: '9342179459' },
       { upsert: true, new: true }
     )
-    res.json({ message: 'Admin seeded successfully', admin: { email: admin.email, role: admin.role } })
+    res.json({ message: 'Admin seeded successfully. Now sign up with this email on the website.', admin: { email: admin.email, role: admin.role } })
   } catch (err) {
     res.status(500).json({ message: err.message })
   }

@@ -24,8 +24,8 @@ services:
     dependsOn:
       - next-lane-python
 
-  # Python API Service
-  - type: web
+  # Python API Service (Internal Private Service)
+  - type: pserv
     name: next-lane-python
     env: python
     plan: free
