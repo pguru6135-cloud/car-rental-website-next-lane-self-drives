@@ -64,7 +64,7 @@ export default function ChatBot() {
         const budgetMatch = lower.match(/(?:under|budget|₹|rs\.?)\s*(\d+,?\d*)/)
         if (budgetMatch) budget = parseInt(budgetMatch[1].replace(',', ''))
 
-        const pythonApiUrl = import.meta.env.VITE_PYTHON_API_URL || 'http://localhost:8000'
+        const pythonApiUrl = import.meta.env.VITE_PYTHON_API_URL || '/api/python'
         const res = await axios.post(`${pythonApiUrl}/suggestions`, {
           location: 'Tirupur', car_type: carType, budget, days: 1
         })

@@ -7,6 +7,8 @@ const rateLimit = require('express-rate-limit')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const { createClient: createSupabaseClient } = require('./utils/supabase/server')
+const { createProxyMiddleware } = require('http-proxy-middleware')
+
 
 
 const connectDB = require('./config/db')
@@ -70,6 +72,16 @@ app.use('/api/auth', require('./routes/auth'))
 app.use('/api/cars', require('./routes/cars'))
 app.use('/api/bookings', require('./routes/bookings'))
 app.use('/api/admin', require('./routes/admin'))
+
+// Proxy requests to Python API
+app.use('/api/python', createProxyMiddleware({
+  target: process.env.PYTHON_API_URL || 'http://localhost:8000',
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api/python': '', // remove /api/python prefix when sending to python
+  },
+}))
+
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'OK', timestamp: new Date() }))
