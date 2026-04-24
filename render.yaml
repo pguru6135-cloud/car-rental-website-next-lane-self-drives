@@ -16,9 +16,6 @@ services:
         value: /api
       - key: PYTHON_API_URL
         value: http://next-lane-python:8000
-      - fromGroup: next-lane-secrets
-    dependsOn:
-      - next-lane-python
 
   # 🐍 Python API Service (Internal Private Service)
   - type: pserv
@@ -29,19 +26,3 @@ services:
     buildCommand: pip install -r python-api/requirements.txt
     startCommand: cd python-api && uvicorn main:app --host 0.0.0.0 --port 8000
     healthCheckPath: /health
-    envVars:
-      - fromGroup: next-lane-secrets
-
-envVarGroups:
-  - name: next-lane-secrets
-    envVars:
-      - key: MONGODB_URI
-        sync: false
-      - key: JWT_SECRET
-        sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_ANON_KEY
-        sync: false
-      - key: SUPABASE_DB_URL
-        sync: false
