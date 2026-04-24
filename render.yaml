@@ -12,13 +12,11 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20
-      - key: MONGODB_URI
-        fromConfig: true
-      - key: JWT_SECRET
-        generateValue: true
+      - key: VITE_API_URL
+        value: /api
       - key: PYTHON_API_URL
         value: http://next-lane-python:8000
-      - fromGroup: supabase-creds
+      - fromGroup: next-lane-secrets
     dependsOn:
       - next-lane-python
 
@@ -32,15 +30,15 @@ services:
     startCommand: cd python-api && uvicorn main:app --host 0.0.0.0 --port 8000
     healthCheckPath: /health
     envVars:
-      - key: MONGODB_URI
-        fromConfig: true
-      - key: JWT_SECRET
-        sync: false
-      - fromGroup: supabase-creds
+      - fromGroup: next-lane-secrets
 
 envVarGroups:
-  - name: supabase-creds
+  - name: next-lane-secrets
     envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_ANON_KEY
