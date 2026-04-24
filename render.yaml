@@ -15,14 +15,16 @@ services:
       - key: VITE_API_URL
         value: /api
       - key: PYTHON_API_URL
-        value: http://next-lane-python:8000
+        value: http://next-lane-python:10000
+      - key: WHATSAPP_ENABLED
+        value: "false"
 
   # 🐍 Python API Service (Internal Private Service)
-  - type: pserv
+  - type: web
     name: next-lane-python
     env: python
     plan: free
     region: oregon
     buildCommand: pip install -r python-api/requirements.txt
-    startCommand: cd python-api && uvicorn main:app --host 0.0.0.0 --port 8000
+    startCommand: cd python-api && uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health

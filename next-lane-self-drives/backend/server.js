@@ -19,9 +19,13 @@ const app = express()
 // Connect DB
 connectDB()
 
-// Initialize WhatsApp Service
-const { initializeWhatsApp } = require('./services/whatsapp')
-initializeWhatsApp()
+// Initialize WhatsApp Service (Optional for cloud environments)
+if (process.env.WHATSAPP_ENABLED === 'true') {
+  const { initializeWhatsApp } = require('./services/whatsapp')
+  initializeWhatsApp()
+} else {
+  console.log('📱 WhatsApp Service is DISABLED (set WHATSAPP_ENABLED=true to enable)')
+}
 
 // Security middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))

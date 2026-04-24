@@ -7,6 +7,7 @@
     "python": "cd python-api && .\\venv\\Scripts\\uvicorn main:app --port 8000 --reload",
     "dev": "concurrently \"npm run dev --prefix next-lane-self-drives/backend\" \"npm run dev --prefix next-lane-self-drives/backend/client\" \"npm run python\"",
     "build": "npm install --prefix next-lane-self-drives/backend && npm install --prefix next-lane-self-drives/backend/client && npm run build --prefix next-lane-self-drives/backend/client",
+    "postinstall": "npm install --prefix next-lane-self-drives/backend",
     "install-all": "npm install && npm install --prefix next-lane-self-drives/backend && npm install --prefix next-lane-self-drives/backend/client && cd python-api && python -m venv venv && .\\venv\\Scripts\\pip install -r requirements.txt"
   },
   "devDependencies": {
