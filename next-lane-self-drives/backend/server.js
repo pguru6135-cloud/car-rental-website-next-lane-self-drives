@@ -5,6 +5,7 @@ const helmet = require('helmet')
 const morgan = require('morgan')
 const rateLimit = require('express-rate-limit')
 const path = require('path')
+const fs = require('fs')
 const cookieParser = require('cookie-parser')
 const { createClient: createSupabaseClient } = require('./utils/supabase/server')
 const { createProxyMiddleware } = require('http-proxy-middleware')
@@ -87,14 +88,27 @@ app.use('/api/python', createProxyMiddleware({
 app.get('/api/health', (req, res) => res.json({ status: 'OK', timestamp: new Date() }))
 
 // Serve frontend static files
-app.use(express.static(path.join(__dirname, 'client/dist')))
+const frontendPath = path.join(__dirname, 'client/dist')
+app.use(express.static(frontendPath))
 
 // Catch-all route to serve the frontend index.html for non-API routes
 app.get('*', (req, res) => {
+  // If it's an API route that wasn't handled, return 404
   if (req.url.startsWith('/api')) {
     return res.status(404).json({ message: 'API route not found' })
   }
-  res.sendFile(path.join(__dirname, 'client/dist/index.html'))
+
+  const indexPath = path.join(frontendPath, 'index.html')
+  
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath)
+  } else {
+    console.error(`❌ Frontend build missing! Expected index.html at: ${indexPath}`)
+    res.status(404).json({ 
+      message: 'Frontend not found. Please ensure the build command ran successfully.',
+      path: process.env.NODE_ENV === 'development' ? indexPath : undefined
+    })
+  }
 })
 
 // Error handler
